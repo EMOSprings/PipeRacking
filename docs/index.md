@@ -1,17 +1,13 @@
-# Welcome to MkDocs
+# Welcome to Modular Racking
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+**High-quality, customisable modular racking sold through a simple and clear online design tool.**
 
-## Commands
+This is the placeholder homepage for your new website. From here, you can navigate to the public-facing pages or, if you are a staff member, access the internal company documentation.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+## Our Mission
 
-## Project layout
+To provide an intuitive online experience for designing and purchasing high-quality, British-made modular racking solutions. We combine lean manufacturing principles with a powerful 3D configurator to deliver exceptional value and service.
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+---
+
+*This site is currently under construction.*

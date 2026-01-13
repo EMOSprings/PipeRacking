@@ -1,44 +1,88 @@
-site_name: Pipe Racking OS
-site_url: https://pipe-racking-pilot.com
-repo_url: https://github.com/your-repo/pipe-racking
+# MkDocs Configuration
+# For more information, see: https://www.mkdocs.org/user-guide/configuration/
 
+site_name: Modular Racking
+site_url: https://example.com/
+site_author: The Business
+site_description: >-
+  High-quality, customisable modular racking sold through a simple and clear online design tool.
+
+# Repository
+repo_name: EMOSprings/PipeRacking
+repo_url: https://github.com/EMOSprings/PipeRacking
+edit_uri: "edit/main/docs/"
+
+# Theme
+# For more information, see: https://squidfunk.github.io/mkdocs-material/getting-started/
 theme:
   name: material
-  palette: 
-    # Switch to dark mode automatically based on system preference
+  logo: assets/logo.svg
+  favicon: assets/favicon.ico
+  palette:
+    # Palette toggle for light vs dark mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+    # Palette toggle for dark vs light mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
-    - navigation.tabs # Top-level tabs for major sections
+    - navigation.tabs
     - navigation.sections
     - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
     - content.code.copy
-    - content.action.edit
 
+# Plugins
 plugins:
   - search
+  - social:
+      cards_layout_options:
+        background_color: "#000000"
 
-markdown_extensions:
-  - admonition # Enables the Warning/Failure boxes
-  - pymdownx.details # Enables collapsible sections
-  - pymdownx.superfences # Better code blocks
-
+# Page tree
 nav:
   - Home: index.md
-  - Governance: 
-      - '00-governance/'
-  - Commercial:
-      - '10-commercial/'
-  - Operations:
-      - '20-operations/'
-  - Finance:
-      - '30-finance/'
-  - Systems & Tools:
-      - '40-it-systems/'
-      - 3D App: 'apps/3d-configurator/'
+  - 3D Configurator: configurator.md
+  - Staff Only:
+    - Governance:
+      - GOV-00-001 - Company Charter: 00-governance/gov-00-001-company-charter.md
+      - GOV-00-002 - Quality Policy: 00-governance/gov-00-002-quality-policy.md
+      - GOV-00-003 - Roles and Responsibilities: 00-governance/gov-00-003-roles-and-responsibilities.md
+    - Commercial:
+      - COM-00-001 - Sales Process: 10-commercial/com-00-001-sales-process.md
+      - SOP-10-001 - Order Processing: 10-commercial/sop-10-001-order-processing.md
+    - Operations:
+      - OPS-00-001 - Order Fulfilment: 20-operations/ops-00-001-order-fulfilment.md
+    - Finance:
+      - FIN-00-001 - Invoicing: 30-finance/fin-00-001-invoicing.md
+    - IT Systems:
+      - SYS-00-001 - Google Auth Setup: 50-it-systems/sys-00-001-google-auth-setup.md
+
+# Markdown extensions
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - toc:
+      permalink: true
+
+# Extra configuration for social plugin (Google Auth)
+# This section will be populated with your credentials later.
+# For now, it's a placeholder.
+extra:
+  social:
+    - icon: fontawesome/brands/google
+      link: "/" # This will be replaced by the auth provider link

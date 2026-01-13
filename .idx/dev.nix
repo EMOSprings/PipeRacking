@@ -3,52 +3,53 @@
 { pkgs, ... }: {
   # Which nixpkgs channel to use.
   channel = "stable-24.05"; # or "unstable"
+
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    # pkgs.go
-    # pkgs.python311
-    # pkgs.python311Packages.pip
-    # pkgs.nodejs_20
-    # pkgs.nodePackages.nodemon
-    pkgs.python3
+    pkgs.python3Packages.pip
+    pkgs.python3Packages.mkdocs
+    pkgs.python3Packages.mkdocs-material
   ];
+
   # Sets environment variables in the workspace
-  env = {};
+  env = {
+    # This is a placeholder for the Google Auth credentials.
+    # You will replace this with your actual credentials later.
+    GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID_HERE";
+    GOOGLE_CLIENT_SECRET = "YOUR_SECRET_HERE";
+  };
+
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
-      # "vscodevim.vim"
       "google.gemini-cli-vscode-ide-companion"
     ];
+
     # Enable previews
     previews = {
       enable = true;
       previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
+        web = {
+          command = ["mkdocs" "serve" "--dev-addr" "0.0.0.0:$PORT"];
+          manager = "web";
+        };
       };
     };
+
     # Workspace lifecycle hooks
     workspace = {
       # Runs when a workspace is first created
       onCreate = {
-        # Example: install JS dependencies from NPM
-        # npm-install = "npm install";
-        # Open editors for the following files by default, if they exist:
-        default.openFiles = [ ".idx/dev.nix" "README.md" ];
+        # Install the mkdocs social plugin for Google Auth
+        install-mkdocs-social = "pip install mkdocs-social";
+        # Open key files on workspace start
+        default.openFiles = [ "mkdocs.yml" "docs/index.md" ".idx/dev.nix" ];
       };
+
       # Runs when the workspace is (re)started
       onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
+        # Automatically start the website server
+        start-web-server = "mkdocs serve --dev-addr 0.0.0.0:$PORT";
       };
     };
   };

@@ -25,7 +25,11 @@ We use Lean principles to give customers what they want without the waste. This 
 *   **Always Improving (Kaizen):** We are always looking for ways to make our products, processes, and services better. Everyone is encouraged to suggest improvements.
 *   **Make Smart Decisions:** We use real data from sales, operations, and customer feedback to make choices. This keeps us sharp and effective.
 
-## 4. What We Aim For
+## 4. Legal Structure
+
+The business operates as a subsidiary of "George Emmott (Pawsons) Ltd." This name is subject to change. For operational purposes and branding, the business may use the name "EMOSprings" or other identifiers, but the legal entity remains the subsidiary.
+
+## 5. What We Aim For
 
 *   **Commercial:**
     *   Launch the website with the 3D design tool within one year.
@@ -37,7 +41,7 @@ We use Lean principles to give customers what they want without the waste. This 
     *   Keep over 95% of our customers happy.
     *   Create a simple and fast process from ordering to sending.
 
-## 5. Our Commitment to Quality
+## 6. Our Commitment to Quality
 
 Quality is essential. We will use a Quality Management System (QMS) based on **ISO 9001:2015** to make sure we hit our goals and keep our customers happy.
 

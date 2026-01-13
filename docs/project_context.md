@@ -28,7 +28,8 @@ The ultimate purpose of this project is to serve as a practical learning environ
 
 ## 2. Architecture & Tech Stack
 
-*   **Approach:** A "Docs-as-Code" methodology will be used, where all documentation, procedures, and system configurations are managed as version-controlled text files. Version history will be managed through Git.
+*   **Approach:** A "Docs-as-Code" methodology will be used, where all documentation, procedures, and system configurations are managed as version-controlled text files.
+*   **Repository:** The project's source code is hosted on GitHub at [https://github.com/EMOSprings/PipeRacking](https://github.com/EMOSprings/PipeRacking).
 *   **Environment:** The project is developed within Project IDX, using a Nix-based configuration (`.idx/dev.nix`) for a reproducible environment.
 *   **Documentation & Frontend:** MkDocs with the Material theme will serve as the framework for the documentation and potentially the initial frontend.
 *   **3D Configurator:** A custom application built with HTML/JS/Canvas (or other web 3D libraries).
