@@ -1,0 +1,17 @@
+
+# Local-only files
+.DS_Store
+
+# IDE-specific files
+.idea/
+.vscode/
+
+# Nix environment files
+result
+
+# Python-specific files
+__pycache__/
+*.pyc
+
+# MkDocs build files
+site/

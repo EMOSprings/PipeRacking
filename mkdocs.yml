@@ -45,9 +45,15 @@ theme:
 # Plugins
 plugins:
   - search
-  - social:
-      cards_layout_options:
-        background_color: "#000000"
+  - simple-password-protect:
+      password: "password" # CHANGE THIS!
+      # Protect all pages in the 'Staff Only' section
+      protected_pages:
+        - 00-governance/*
+        - 10-commercial/*
+        - 20-operations/*
+        - 30-finance/*
+        - 50-it-systems/*
 
 # Page tree
 nav:
@@ -80,11 +86,3 @@ markdown_extensions:
   - admonition
   - toc:
       permalink: true
-
-# Extra configuration for social plugin (Google Auth)
-# This section will be populated with your credentials later.
-# For now, it's a placeholder.
-extra:
-  social:
-    - icon: fontawesome/brands/google
-      link: "/" # This will be replaced by the auth provider link
