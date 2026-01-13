@@ -1,55 +1,45 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://developers.google.com/idx/guides/customize-idx-env
-{ pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
 
-  # Use https://search.nixos.org/packages to find packages
+# See https://developers.google.com/idx/guides/customize-idx-env
+# for more details on customizing your environment.
+{ pkgs, ... }: {
+  # Specifies the Nixpkgs channel.
+  channel = "stable-24.05";
+
+  # A list of packages to install.
   packages = [
-    pkgs.python3Packages.pip
-    pkgs.python3Packages.mkdocs
-    pkgs.python3Packages.mkdocs-material
+    pkgs.python3
+    pkgs.pip
+    pkgs.nodejs_20  # Added Node.js for web-related tools
   ];
 
-  # Sets environment variables in the workspace
-  env = {
-    # This is a placeholder for the Google Auth credentials.
-    # You will replace this with your actual credentials later.
-    GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID_HERE";
-    GOOGLE_CLIENT_SECRET = "YOUR_SECRET_HERE";
-  };
+  # A set of environment variables to define.
+  env = {};
 
+  # VS Code extensions to install.
   idx = {
-    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
-      "google.gemini-cli-vscode-ide-companion"
+      "ms-python.python"
+      "esbenp.prettier-vscode"
     ];
-
-    # Enable previews
+    workspace = {
+      # Runs when a workspace is first created.
+      onCreate = {
+        install-deps = "pip install -r requirements.txt";
+      };
+      # Runs every time the workspace is (re)started.
+      onStart = {
+        # The command to run your app, e.g. "npm run dev"
+      };
+    };
+    # Configures a web preview for your application.
     previews = {
       enable = true;
       previews = {
         web = {
-          command = ["mkdocs" "serve" "--dev-addr" "0.0.0.0:$PORT"];
+          # Command to start your web server
+          command = ["mkdocs" "serve" "-f" "mkdocs.yml" "-a" "0.0.0.0:$PORT"];
           manager = "web";
         };
-      };
-    };
-
-    # Workspace lifecycle hooks
-    workspace = {
-      # Runs when a workspace is first created
-      onCreate = {
-        # Install the mkdocs social plugin for Google Auth
-        install-mkdocs-social = "pip install mkdocs-social";
-        # Open key files on workspace start
-        default.openFiles = [ "mkdocs.yml" "docs/index.md" ".idx/dev.nix" ];
-      };
-
-      # Runs when the workspace is (re)started
-      onStart = {
-        # Automatically start the website server
-        start-web-server = "mkdocs serve --dev-addr 0.0.0.0:$PORT";
       };
     };
   };
