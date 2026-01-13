@@ -1,0 +1,44 @@
+site_name: Pipe Racking OS
+site_url: https://pipe-racking-pilot.com
+repo_url: https://github.com/your-repo/pipe-racking
+
+theme:
+  name: material
+  palette: 
+    # Switch to dark mode automatically based on system preference
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+  features:
+    - navigation.tabs # Top-level tabs for major sections
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition # Enables the Warning/Failure boxes
+  - pymdownx.details # Enables collapsible sections
+  - pymdownx.superfences # Better code blocks
+
+nav:
+  - Home: index.md
+  - Governance: 
+      - '00-governance/'
+  - Commercial:
+      - '10-commercial/'
+  - Operations:
+      - '20-operations/'
+  - Finance:
+      - '30-finance/'
+  - Systems & Tools:
+      - '40-it-systems/'
+      - 3D App: 'apps/3d-configurator/'
