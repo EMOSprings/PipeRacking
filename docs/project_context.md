@@ -76,3 +76,46 @@ While the initial focus is on building a self-contained Digital OS, future integ
 *   Automated data synchronization between the Digital OS and the ERP.
 
 This integration will be explored once the core platform is mature.
+
+## 6. App: 3D Racking Configurator
+
+This section details the context for the 3D product configurator, a key component of the customer-facing platform.
+
+### 6.1. Goal
+
+The goal is to create a web-based tool that allows users to parametrically design a racking unit, view it in 3D, and eventually generate a bill of materials.
+
+### 6.2. Tech Stack
+
+- **3D Rendering:** Three.js
+- **Application Logic:** JavaScript (ES6 Modules)
+- **Development Server:** Caddy (configured in `.idx/dev.nix`)
+
+### 6.3. Development Milestones
+
+1.  **Basic Structure:**
+    - [x] Create a parametric `createPipe` function.
+    - [x] Create a `createRacking` function to assemble the frame from pipes.
+    - [x] Add horizontal shelf supports.
+2.  **Fittings:**
+    - [x] Implement a `createFitting` function.
+    - [x] Use placeholder geometry (red spheres) for fittings. **(Current State)**
+    - [ ] Load actual `.obj` models for fittings (pending model availability).
+3.  **User Interface:**
+    - [x] Add UI controls for `height`, `width`, and `depth`.
+    - [x] Implement a function to regenerate the model when the configuration changes.
+4.  **Bill of Materials (BOM):**
+    - [ ] Create a data structure to track all parts.
+    - [ ] Display the BOM on the UI panel.
+
+### 6.4. Current Status
+
+The project's 3D viewer is in its initial development phase. The core 3D structure, including vertical posts, horizontal shelf pipes, and **placeholder fittings (red spheres)**, is procedurally generated based on a static configuration object in `main.js`. The application is served from the `apps/3d-configurator` directory using the Caddy web server, as defined in `.idx/dev.nix`. An attempt to add a `three-viewport-gizmo` was made and has been reverted.
+
+### 6.5. Development Log
+
+**Recent Activity**
+*   **Attempted Gizmo Integration:** An attempt was made to integrate the `three-viewport-gizmo` library to add a viewport orientation gizmo to the 3D scene.
+*   **Problem:** The integration resulted in a blank white screen, preventing the main racking model from rendering. Several attempts to fix the rendering loop and library integration were unsuccessful.
+*   **Resolution:** All changes related to the `three-viewport-gizmo` have been reverted from `index.html` and `main.js`. The application is back to a stable state where the racking model renders correctly.
+*   **Next Steps:** Future attempts to add a gizmo should proceed with caution. It is recommended to inspect the `three-viewport-gizmo` library's source code or documentation thoroughly before attempting integration again to understand its specific requirements for the renderer and scene setup.

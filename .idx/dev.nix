@@ -17,6 +17,7 @@
      mkdocs-material
      pymdown-extensions
    ]))
+   pkgs.caddy # Add caddy for serving the web app
   ];
 
   # A set of environment variables to define.
@@ -34,7 +35,8 @@
       enable = true;
       previews = {
         web = {
-          command = ["python" "-m" "http.server" "$PORT"];
+          # Use Caddy to serve the 3D configurator app
+          command = ["caddy" "file-server" "--root" "apps/3d-configurator" "--listen" ":$PORT" "--browse"];
           manager = "web";
         };
       };

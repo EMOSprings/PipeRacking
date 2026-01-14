@@ -1,3 +1,4 @@
+
 # MkDocs Configuration
 # For more information, see: https://www.mkdocs.org/user-guide/configuration/
 
@@ -19,18 +20,16 @@ theme:
   logo: assets/logo.svg
   favicon: assets/favicon.ico
   palette:
-    # Palette toggle for light vs dark mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    - scheme: slate
+      primary: 'indigo'
+      accent: 'indigo'
       toggle:
-        icon: material/brightness-7 
-        name: Switch to dark mode
-    # Palette toggle for dark vs light mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+        icon: material/brightness-7
+        name: Switch to light mode
+    - scheme: default
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to dark mode
   features:
     - navigation.tabs
     - navigation.sections
@@ -50,6 +49,8 @@ plugins:
 nav:
   - Home: index.md
   - 3D Configurator: configurator.md
+  - About: about.md
+  - Contact: contact.md
   - Staff Only:
     - Governance:
       - GOV-00-001 - Company Charter: 00-governance/gov-00-001-company-charter.md
@@ -63,7 +64,7 @@ nav:
     - Operations:
       - OPS-00-001 - Order Fulfilment: 20-operations/ops-00-001-order-fulfilment.md
     - Finance:
-      - FIN-00-001 - Invoicing: 30-finance/03-finance/fin-00-001-invoicing.md
+      - FIN-00-001 - Invoicing: 30-finance/fin-00-001-invoicing.md
     - IT Systems:
       - SYS-00-001 - Google Auth Setup: 50-it-systems/sys-00-001-google-auth-setup.md
 

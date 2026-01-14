@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Racking Configurator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="scene-container"></div>
+    <div id="ui-panel">
+        <h1>3D Racking Configurator</h1>
+        
+        <div class="control-group">
+            <label for="height">Height: <span id="height-value">2000</span> mm</label>
+            <input type="range" id="height" name="height" min="500" max="4000" value="2000" step="100">
+        </div>
+        
+        <div class="control-group">
+            <label for="width">Width: <span id="width-value">1500</span> mm</label>
+            <input type="range" id="width" name="width" min="500" max="3000" value="1500" step="100">
+        </div>
+        
+        <div class="control-group">
+            <label for="depth">Depth: <span id="depth-value">500</span> mm</label>
+            <input type="range" id="depth" name="depth" min="300" max="1500" value="500" step="50">
+        </div>
+
+    </div>
+
+    <!-- Import Three.js & other libraries -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <!-- Main application script -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>

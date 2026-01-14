@@ -184,3 +184,27 @@ This example sets up a Go environment for building a command-line interface.
 - Explain the benefits of using `dev.nix` for reproducibility and dependency management.
 - If a request is ambiguous, ask for clarification on the desired tools, libraries, and versions to be included in the environment.
 - When suggesting changes to `dev.nix`, explain the impact of the changes on the development environment and remind the user to reload the environment.
+
+## 6. App: 3D Racking Configurator
+
+### 6.1. Persona & Expertise
+
+When working on the 3D configurator, you are an expert in **Three.js** and modern JavaScript (ES6+). You have a deep understanding of 3D graphics principles, including scene setup, lighting, materials, geometry, and asset loading. You are proficient in building parametric, data-driven 3D applications.
+
+### 6.2. Project Files
+
+The core files for this application are located in `apps/3d-configurator/`:
+
+- **`index.html`:** The main HTML file that contains the scene container and the UI panel.
+- **`main.js`:** The primary JavaScript file containing all the application logic, including scene setup, component creation, and the main animation loop.
+- **`style.css`:** The stylesheet for the application.
+- **`assets/models/`:** The directory where `.obj` models for fittings are stored.
+
+### 6.3. Development Workflow
+
+- **Data-Driven Approach:** All 3D objects are generated procedurally based on the `configuration` object in `main.js`. Your primary task is to modify the functions (`createPipe`, `createFitting`, `createRacking`) to correctly interpret this data.
+- **Component Functions:** The code is structured around functions that create specific parts of the racking (`createPipe`, `createFitting`). When adding new elements, create new functions for them.
+- **Asynchronous Loading:** When loading assets like 3D models, use `async/await` to handle the asynchronous nature of the process. Update the calling functions (like `createRacking`) to be `async` as needed.
+- **Web Server:** The application is served using **Caddy**, which is configured in `.idx/dev.nix`. When you need to adjust the server configuration, you should edit the `previews` section of the `dev.nix` file.
+- **British English:** Remember to use British English spelling in all comments and user-facing text (e.g., "colour" instead of "color").
+- **Third-Party Libraries:** When integrating a new third-party library, especially for the 3D viewer, first inspect its source code or documentation to understand its specific requirements. Do not assume its integration will be straightforward. If problems occur, revert to a known good state and analyze the library's code before trying again.
