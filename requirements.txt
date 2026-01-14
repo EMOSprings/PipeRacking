@@ -1,5 +1,0 @@
-mkdocs
-mkdocs-material
-mkdocs-social-plugin
-pymdown-extensions
-mkdocs-simple-password-protect

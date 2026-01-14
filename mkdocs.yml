@@ -45,15 +45,6 @@ theme:
 # Plugins
 plugins:
   - search
-  - simple-password-protect:
-      password: "password" # CHANGE THIS!
-      # Protect all pages in the 'Staff Only' section
-      protected_pages:
-        - 00-governance/*
-        - 10-commercial/*
-        - 20-operations/*
-        - 30-finance/*
-        - 50-it-systems/*
 
 # Page tree
 nav:
@@ -72,7 +63,7 @@ nav:
     - Operations:
       - OPS-00-001 - Order Fulfilment: 20-operations/ops-00-001-order-fulfilment.md
     - Finance:
-      - FIN-00-001 - Invoicing: 30-finance/fin-00-001-invoicing.md
+      - FIN-00-001 - Invoicing: 30-finance/03-finance/fin-00-001-invoicing.md
     - IT Systems:
       - SYS-00-001 - Google Auth Setup: 50-it-systems/sys-00-001-google-auth-setup.md
 
