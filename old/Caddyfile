@@ -1,0 +1,17 @@
+http://:{$PORT} {
+    root * /workspace
+
+    route /configurator/* {
+        uri strip_prefix /configurator
+        root * /workspace/apps/3d-configurator
+        file_server
+    }
+
+    route /docs/* {
+        uri strip_prefix /docs
+        root * /workspace/site
+        file_server
+    }
+
+    file_server
+}
