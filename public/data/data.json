@@ -1,0 +1,12 @@
+{
+  "pipe": {
+    "diameter": 48.3,
+    "finish": "galvanised"
+  },
+  "defaults": {
+    "height": 2000,
+    "width": 1500,
+    "depth": 500,
+    "shelves": 3
+  }
+}

@@ -1,19 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Configurator - Pipe Racking</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Racking Configurator - Pipe Racking</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="configurator.css">
 </head>
 <body>
     <div id="header-placeholder"></div>
 
     <main>
-        <h2>3D Product Configurator</h2>
-        <p>The 3D configurator will be embedded here.</p>
-        <!-- This is where the <canvas> for the Three.js app will go -->
+        <h2>3D Racking Configurator</h2>
+        <div class="configurator-wrapper">
+            <div id="scene-container"></div>
+            <div id="ui-panel">
+                <h3>Controls</h3>
+                
+                <div class="control-group">
+                    <label for="height">Height: <span id="height-value">2000</span> mm</label>
+                    <input type="range" id="height" name="height" min="500" max="4000" value="2000" step="100">
+                </div>
+                
+                <div class="control-group">
+                    <label for="width">Width: <span id="width-value">1500</span> mm</label>
+                    <input type="range" id="width" name="width" min="500" max="3000" value="1500" step="100">
+                </div>
+                
+                <div class="control-group">
+                    <label for="depth">Depth: <span id="depth-value">500</span> mm</label>
+                    <input type="range" id="depth" name="depth" min="300" max="1500" value="500" step="50">
+                </div>
+
+            </div>
+        </div>
+        <p>Use the controls to design your custom racking solution. The 3D model will update in real-time.</p>
     </main>
 
     <div id="footer-placeholder"></div>
 
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+            }
+        }
+    </script>
+
     <script src="app.js"></script>
+    <script type="module" src="configurator.js"></script>
 </body>
 </html>
