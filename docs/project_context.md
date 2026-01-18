@@ -99,8 +99,9 @@ The goal is to create a web-based tool that allows users to parametrically desig
     - [x] Add horizontal shelf supports.
 2.  **Fittings:**
     - [x] Implement a `createFitting` function.
-    - [x] Use placeholder geometry (red spheres) for fittings. **(Current State)**
-    - [ ] Load actual `.obj` models for fittings (pending model availability).
+    - [x] Implement dynamic loading for `.obj` models based on pipe diameter.
+    - [x] Use placeholder geometry (red spheres) as a fallback for missing models. **(Current State)**
+    - [ ] Source and add `.obj` models for all remaining pipe diameters.
 3.  **User Interface:**
     - [x] Add UI controls for `height`, `width`, and `depth`.
     - [x] Implement a function to regenerate the model when the configuration changes.
