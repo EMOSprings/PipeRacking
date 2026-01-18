@@ -39,15 +39,13 @@ async function loadFittingModel(diameter) {
     try {
         const model = await loader.loadAsync(`/assets/models/${diameter}mm/116 A.obj`);
         
-        // Auto-center and rescale the model
+        // Auto-center the model
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center); // Center the model
+        model.position.sub(center);
 
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 80 / maxDim; // Scale to a consistent size (e.g., 80mm)
-        model.scale.set(scale, scale, scale);
+        // Apply the new scaling factor of 9
+        model.scale.set(9, 9, 9);
 
         const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x8A8A8A, roughness: 0.6, metalness: 1.0 });
         model.traverse((child) => {
@@ -91,6 +89,13 @@ scene.add(directionalLight);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+
+// Add a reference cube for scaling
+const cubeGeometry = new THREE.BoxGeometry(500, 500, 500);
+const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+const referenceCube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+referenceCube.position.set(0, 250, 0); // Lift it so it sits on the ground plane
+scene.add(referenceCube);
 
 // =====================================================================================
 // CORE COMPONENTS & MATERIALS
