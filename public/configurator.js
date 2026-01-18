@@ -38,12 +38,24 @@ async function loadFittingModel(diameter) {
 
     try {
         const model = await loader.loadAsync(`/assets/models/${diameter}mm/116 A.obj`);
+        
+        // Auto-center and rescale the model
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center); // Center the model
+
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 80 / maxDim; // Scale to a consistent size (e.g., 80mm)
+        model.scale.set(scale, scale, scale);
+
         const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x8A8A8A, roughness: 0.6, metalness: 1.0 });
         model.traverse((child) => {
             if (child.isMesh) {
                 child.material = defaultMaterial;
             }
         });
+
         fittingModels[diameter] = model;
         return model;
     } catch (error) {
@@ -111,11 +123,19 @@ function createRacking(config) {
     const { count } = config.shelves;
 
     const postPositions = [
-        [-width / 2, -depth / 2],
-        [width / 2, -depth / 2],
-        [-width / 2, depth / 2],
-        [width / 2, depth / 2]
+        [-width / 2, -depth / 2], // Front-left
+        [width / 2, -depth / 2],  // Front-right
+        [-width / 2, depth / 2],   // Back-left
+        [width / 2, depth / 2]    // Back-right
     ];
+
+    const fittingRotations = [
+        0,                  // Front-left
+        -Math.PI / 2,       // Front-right
+        Math.PI / 2,        // Back-left
+        Math.PI             // Back-right
+    ];
+
     postPositions.forEach(pos => {
         const post = createPipe(height, diameter, defaultMaterial);
         post.position.set(pos[0], height / 2, pos[1]);
@@ -144,9 +164,10 @@ function createRacking(config) {
         h_pipe4.position.set(width / 2, shelfY, 0);
         racking.add(h_pipe4);
 
-        postPositions.forEach(pos => {
+        postPositions.forEach((pos, index) => {
             const fitting = createFitting('116 A', diameter);
             fitting.position.set(pos[0], shelfY, pos[1]);
+            fitting.rotation.y = fittingRotations[index]; // Rotate the fitting
             racking.add(fitting);
         });
     }
