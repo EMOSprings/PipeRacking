@@ -1,3 +1,4 @@
+
 /* Basic Styles & Resets */
 *,
 *::before,
@@ -35,13 +36,15 @@ header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* This is the new wrapper for the logo */
 .logo {
     display: flex;
     align-items: center;
+    text-decoration: none; /* remove underline from logo link */
 }
 
 .logo img {
-    height: 40px;
+    height: 60px; /* Increased logo size */
     margin-right: 1rem;
 }
 
@@ -49,33 +52,30 @@ header {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 500;
+    color: #ffffff; /* Ensure h1 color is white */
+}
+
+/* Ensure logo link hover doesn't change color of h1 */
+.logo:hover h1 {
     color: #ffffff;
 }
 
+
 nav a {
-    margin-left: 1.5rem;
+    margin-left: 0.5rem; /* reduce margin a bit */
     font-size: 0.9rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1px;
-    position: relative;
-    padding-bottom: 8px; /* Added padding for the underline effect */
+    color: #e0e0e0; /* Change link color */
+    padding: 10px 15px; /* Add padding for a button-like feel */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition */
 }
 
-/* Underline effect on hover */
-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background-color: #4dabf7;
-    transition: width 0.3s ease-in-out;
-}
-
-nav a:hover::after {
-    width: 100%;
+nav a:hover {
+    background-color: #444; /* Add a background color on hover */
+    color: #ffffff; /* Make text white on hover */
 }
 
 

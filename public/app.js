@@ -1,35 +1,39 @@
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Inject common head elements
-    const head = document.head;
+    // A reusable function to fetch and inject HTML content
+    const includeHTML = (filePath, placeholderId) => {
+        // Add a cache-busting query parameter
+        const cacheBustingFilePath = `${filePath}?v=${new Date().getTime()}`;
 
-    // Meta tags
-    const charset = document.createElement('meta');
-    charset.setAttribute('charset', 'UTF-8');
-    head.appendChild(charset);
+        // Use fetch to get the content of the file
+        fetch(cacheBustingFilePath)
+            .then(response => {
+                // Check if the request was successful
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${filePath}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                // Find the placeholder element and inject the HTML
+                const placeholder = document.getElementById(placeholderId);
+                if (placeholder) {
+                    placeholder.innerHTML = data;
+                } else {
+                    console.error(`Placeholder element with id "${placeholderId}" not found.`);
+                }
+            })
+            .catch(error => {
+                // Log any errors to the console for easier debugging
+                console.error("Error including HTML:", error);
+            });
+    };
 
-    const viewport = document.createElement('meta');
-    viewport.setAttribute('name', 'viewport');
-    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-    head.appendChild(viewport);
+    // Inject the header and footer
+    // These paths are relative to the root of the website.
+    includeHTML("/_header.html", "header-placeholder");
+    includeHTML("/_footer.html", "footer-placeholder");
 
-    // Stylesheet with cache busting
-    const stylesheet = document.createElement('link');
-    stylesheet.setAttribute('rel', 'stylesheet');
-    stylesheet.setAttribute('href', 'style.css?v=1.1'); // Easily update version here
-    head.appendChild(stylesheet);
-
-    // Fetch and inject the header
-    fetch("_header.html")
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById("header-placeholder").innerHTML = data;
-        });
-
-    // Fetch and inject the footer
-    fetch("_footer.html")
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById("footer-placeholder").innerHTML = data;
-        });
+    // We no longer need to inject the head content here,
+    // it should be directly in each HTML file for simplicity and control.
 });
