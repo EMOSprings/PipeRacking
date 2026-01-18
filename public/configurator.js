@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 // =====================================================================================
 // DATA LOADING
@@ -22,6 +23,38 @@ const configuration = {
         count: data.defaults.shelves
     }
 };
+
+// =====================================================================================
+// ASSET LOADING
+// =====================================================================================
+
+const loader = new OBJLoader();
+const fittingModels = {};
+
+async function loadFittingModel(diameter) {
+    if (fittingModels[diameter]) {
+        return fittingModels[diameter];
+    }
+
+    try {
+        const model = await loader.loadAsync(`/assets/models/${diameter}mm/116 A.obj`);
+        const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x8A8A8A, roughness: 0.6, metalness: 1.0 });
+        model.traverse((child) => {
+            if (child.isMesh) {
+                child.material = defaultMaterial;
+            }
+        });
+        fittingModels[diameter] = model;
+        return model;
+    } catch (error) {
+        console.warn(`Could not load model for diameter ${diameter}mm. Using placeholder.`);
+        return null; // Indicates that loading failed
+    }
+}
+
+// Pre-load the default model
+await loadFittingModel(configuration.pipe.diameter);
+
 
 // =====================================================================================
 // MAIN SCENE SETUP
@@ -59,7 +92,12 @@ function createPipe(length, diameter, material) {
     return pipe;
 }
 
-function createFitting(type) {
+function createFitting(type, diameter) {
+    const model = fittingModels[diameter];
+    if (model) {
+        return model.clone();
+    }
+    // Fallback to placeholder
     const geometry = new THREE.SphereGeometry(40, 16, 16);
     const placeholder = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xff0000 }));
     return placeholder;
@@ -107,7 +145,7 @@ function createRacking(config) {
         racking.add(h_pipe4);
 
         postPositions.forEach(pos => {
-            const fitting = createFitting('104');
+            const fitting = createFitting('116 A', diameter);
             fitting.position.set(pos[0], shelfY, pos[1]);
             racking.add(fitting);
         });
@@ -125,18 +163,25 @@ scene.add(rackingSystem);
 const heightInput = document.getElementById('height');
 const widthInput = document.getElementById('width');
 const depthInput = document.getElementById('depth');
+const pipeDiameterInput = document.getElementById('pipe-diameter');
+const shelvesInput = document.getElementById('shelves');
 
 const heightValue = document.getElementById('height-value');
 const widthValue = document.getElementById('width-value');
 const depthValue = document.getElementById('depth-value');
+const shelvesValue = document.getElementById('shelves-value');
 
-function regenerateRacking() {
+async function regenerateRacking() {
+    // Show a loading indicator if you have one
+    await loadFittingModel(configuration.pipe.diameter);
+    
     scene.remove(rackingSystem);
     rackingSystem = createRacking(configuration);
     scene.add(rackingSystem);
     const boundingBox = new THREE.Box3().setFromObject(rackingSystem);
     const center = boundingBox.getCenter(new THREE.Vector3());
     controls.target.copy(center);
+    // Hide loading indicator
 }
 
 heightInput.addEventListener('input', (e) => {
@@ -155,6 +200,31 @@ depthInput.addEventListener('input', (e) => {
     configuration.dimensions.depth = parseInt(e.target.value);
     depthValue.textContent = e.target.value;
     regenerateRacking();
+});
+
+pipeDiameterInput.addEventListener('change', (e) => {
+    configuration.pipe.diameter = parseFloat(e.target.value);
+    regenerateRacking();
+});
+
+shelvesInput.addEventListener('input', (e) => {
+    configuration.shelves.count = parseInt(e.target.value);
+    shelvesValue.textContent = e.target.value;
+    regenerateRacking();
+});
+
+// =====================================================================================
+// INITIAL UI POPULATION
+// =====================================================================================
+
+data.pipe.diameters.forEach(size => {
+    const option = document.createElement('option');
+    option.value = size.diameter;
+    option.textContent = `${size.code} = ${size.diameter} ${size.unit}`;
+    if (size.diameter === configuration.pipe.diameter) {
+        option.selected = true;
+    }
+    pipeDiameterInput.appendChild(option);
 });
 
 // =====================================================================================

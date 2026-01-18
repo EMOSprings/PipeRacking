@@ -1,12 +1,23 @@
 {
-  "pipe": {
-    "diameter": 48.3,
-    "finish": "galvanised"
-  },
-  "defaults": {
-    "height": 2000,
-    "width": 1500,
-    "depth": 500,
-    "shelves": 3
-  }
+    "pipe": {
+        "diameters": [
+            { "code": "A", "diameter": 26.9, "unit": "mm" },
+            { "code": "B", "diameter": 33.7, "unit": "mm" },
+            { "code": "C", "diameter": 42.4, "unit": "mm" },
+            { "code": "D", "diameter": 48.3, "unit": "mm" },
+            { "code": "E", "diameter": 60.3, "unit": "mm" }
+        ],
+        "finishes": [
+            "galvanised",
+            "black"
+        ],
+        "diameter": 48.3,
+        "finish": "galvanised"
+    },
+    "defaults": {
+        "height": 2000,
+        "width": 1500,
+        "depth": 500,
+        "shelves": 3
+    }
 }
