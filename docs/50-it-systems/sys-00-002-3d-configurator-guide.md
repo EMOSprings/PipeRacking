@@ -45,6 +45,7 @@ The Minimum Viable Product (MVP) should focus on the core functionality:
 
 ## 5. Future Enhancements
 
+*   **Accurate Fitting Offsets:** Refine the geometric calculations to use the precise dimensions of the corner fitting models, not just the pipe diameter. The current implementation is an approximation. This will become critical when the detailed fitting models are complete and will ensure the final outer dimensions of the racking are 100% accurate.
 *   Support for different pipe diameters and finishes.
 *   Advanced validation (e.g., structural stability).
 *   Integration with e-commerce for direct ordering.
