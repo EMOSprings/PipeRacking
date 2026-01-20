@@ -38,8 +38,8 @@
                 </div>
 
                 <div class="control-group">
-                    <label for="shelves">Shelves: <span id="shelves-value">3</span></label>
-                    <input type="range" id="shelves" name="shelves" min="1" max="6" value="3" step="1">
+                    <label for="shelves">Additional Shelves: <span id="shelves-value">1</span></label>
+                    <input type="range" id="shelves" name="shelves" min="0" max="6" value="1" step="1">
                 </div>
 
                 <div class="control-group">
@@ -55,6 +55,11 @@
         <div id="bom-panel">
             <h3>Bill of Materials</h3>
             <div id="bom-content"></div>
+            <div id="bom-total" class="bom-total"></div>
+            <button id="buy-now-button"
+                    class="snipcart-add-item">
+                Buy Now
+            </button>
         </div>
 
         <p>Use the controls to design your custom racking solution. The 3D model will update in real-time.</p>

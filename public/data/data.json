@@ -1,11 +1,11 @@
 {
     "pipe": {
         "diameters": [
-            { "code": "A", "diameter": 26.9, "unit": "mm" },
-            { "code": "B", "diameter": 33.7, "unit": "mm" },
-            { "code": "C", "diameter": 42.4, "unit": "mm" },
-            { "code": "D", "diameter": 48.3, "unit": "mm" },
-            { "code": "E", "diameter": 60.3, "unit": "mm" }
+            { "code": "A", "diameter": 26.9, "unit": "mm", "sku": "PIP-26.9-G", "price_per_mm": 0.015 },
+            { "code": "B", "diameter": 33.7, "unit": "mm", "sku": "PIP-33.7-G", "price_per_mm": 0.020 },
+            { "code": "C", "diameter": 42.4, "unit": "mm", "sku": "PIP-42.4-G", "price_per_mm": 0.025 },
+            { "code": "D", "diameter": 48.3, "unit": "mm", "sku": "PIP-48.3-G", "price_per_mm": 0.030 },
+            { "code": "E", "diameter": 60.3, "unit": "mm", "sku": "PIP-60.3-G", "price_per_mm": 0.040 }
         ],
         "finishes": [
             "galvanised",
@@ -14,10 +14,22 @@
         "diameter": 48.3,
         "finish": "galvanised"
     },
+    "fittings": {
+        "116": {
+            "name": "90° Corner Joint",
+            "sizes": {
+                "A": { "sku": "FIT-116-A", "price": 5.50 },
+                "B": { "sku": "FIT-116-B", "price": 6.50 },
+                "C": { "sku": "FIT-116-C", "price": 7.50 },
+                "D": { "sku": "FIT-116-D", "price": 8.50 },
+                "E": { "sku": "FIT-116-E", "price": 9.50 }
+            }
+        }
+    },
     "defaults": {
         "height": 2000,
         "width": 1500,
         "depth": 500,
-        "shelves": 3
+        "shelves": 1
     }
 }

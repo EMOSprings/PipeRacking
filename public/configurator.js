@@ -3,14 +3,33 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 // Wait for the DOM to be fully loaded before running the script
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
+
     // =====================================================================================
     // DATA LOADING
     // =====================================================================================
+    // Fetch the data first. The rest of the initialization is chained to this promise
+    // to ensure the data is available before any 3D objects are built.
+    fetch('./data/data.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data.json: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // --- DATA IS NOW LOADED, PROCEED WITH INITIALIZATION ---
+            initializeConfigurator(data);
+        })
+        .catch(error => {
+            console.error("Error initializing configurator:", error);
+            const sceneContainer = document.getElementById('scene-container');
+            sceneContainer.innerHTML = `<div class="error-message">Error loading configurator. Please try again later.</div>`;
+        });
+});
 
-    const response = await fetch('/data/data.json');
-    const data = await response.json();
-
+// The main function that sets up everything once data is loaded
+async function initializeConfigurator(data) {
     const configuration = {
         dimensions: {
             height: data.defaults.height,
@@ -39,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            const model = await loader.loadAsync(`/assets/models/${diameter}mm/116 A.obj`);
+            const model = await loader.loadAsync(`assets/models/${diameter}mm/116 A.obj`);
             
             // Auto-center the model
             const box = new THREE.Box3().setFromObject(model);
@@ -64,10 +83,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Pre-load the default model
-    await loadFittingModel(configuration.pipe.diameter);
-
-
     // =====================================================================================
     // MAIN SCENE SETUP
     // =====================================================================================
@@ -81,6 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);
+    sceneContainer.innerHTML = ''; // Clear any previous error messages
     sceneContainer.appendChild(renderer.domElement);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -119,16 +135,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         return placeholder;
     }
 
+    // --- Data helper functions ---
+    function getPipeData(diameter) {
+        return data.pipe.diameters.find(d => d.diameter === diameter);
+    }
+
+    function getFittingData(type, diameter) {
+        const fittingType = data.fittings[type];
+        if (!fittingType) return null;
+        // Find the pipe code (A, B, C...) for the current diameter
+        const pipeCode = getPipeData(diameter).code;
+        // Return the fitting data for that specific size
+        return fittingType.sizes[pipeCode];
+    }
+
     function createRacking(config) {
         const racking = new THREE.Group();
+        // --- BOM Structure ---
         const bom = {
-            pipes: {},
-            fittings: {}
+            items: [],
+            totalPrice: 0
         };
     
         const { height, width, depth } = config.dimensions;
         const { diameter } = config.pipe;
-        const { count } = config.shelves;
+        // Note: 'count' now refers to *additional* shelves between the top and bottom.
+        const { count } = config.shelves; 
     
         // The user-defined width and depth are for the OUTER dimensions.
         // We need to account for the pipe diameter to set the centers of the posts.
@@ -150,50 +182,86 @@ document.addEventListener('DOMContentLoaded', async () => {
             Math.PI             // Back-right
         ];
 
+        // --- Get master data for current pipe/fitting size ---
+        const pipeData = getPipeData(diameter);
+        const fittingData = getFittingData("116", diameter);
+
+        if (!pipeData || !fittingData) {
+            console.error(`Data missing for diameter ${diameter}. Cannot create racking.`);
+            // Return an empty structure to avoid crashing the app
+            return { model: new THREE.Group(), bom: { items: [], totalPrice: 0 }};
+        }
+
+        // --- Helper to add items to the BOM and calculate price ---
+        function addBomItem(name, sku, quantity, price, length = null) {
+            const item = { name, sku, quantity, price, length };
+            bom.items.push(item);
+            bom.totalPrice += price * quantity;
+        }
+
         // Add vertical posts
         postPositions.forEach(pos => {
             const post = createPipe(roundedHeight, diameter, defaultMaterial);
             post.position.set(pos[0], roundedHeight / 2, pos[1]);
             racking.add(post);
         });
-        bom.pipes[roundedHeight] = (bom.pipes[roundedHeight] || 0) + 4;
+        // Add 4 vertical posts to the BOM
+        addBomItem(`Pipe (${diameter}mm)`, pipeData.sku, 4, pipeData.price_per_mm * roundedHeight, roundedHeight);
 
-        // Add shelves
-        const shelfSpacing = roundedHeight / (count + 1);
-        for (let i = 1; i <= count; i++) {
-            const shelfY = i * shelfSpacing;
-
+        // --- Helper function to create a single shelf and update the BOM ---
+        function addShelf(shelfY) {
             // Add horizontal pipes (width)
-            const horizontalPipeZ = createPipe(innerWidth, diameter, defaultMaterial);
-            horizontalPipeZ.rotation.z = Math.PI / 2;
-            const h_pipe1 = horizontalPipeZ.clone();
-            h_pipe1.position.set(0, shelfY, -innerDepth / 2);
-            racking.add(h_pipe1);
-            const h_pipe2 = horizontalPipeZ.clone();
-            h_pipe2.position.set(0, shelfY, innerDepth / 2);
-            racking.add(h_pipe2);
-            bom.pipes[innerWidth] = (bom.pipes[innerWidth] || 0) + 2;
+            const horizontalPipeZ1 = createPipe(innerWidth, diameter, defaultMaterial);
+            horizontalPipeZ1.rotation.z = Math.PI / 2;
+            horizontalPipeZ1.position.set(0, shelfY, -innerDepth / 2);
+            racking.add(horizontalPipeZ1);
+
+            const horizontalPipeZ2 = createPipe(innerWidth, diameter, defaultMaterial);
+            horizontalPipeZ2.rotation.z = Math.PI / 2;
+            horizontalPipeZ2.position.set(0, shelfY, innerDepth / 2);
+            racking.add(horizontalPipeZ2);
+            addBomItem(`Pipe (${diameter}mm)`, pipeData.sku, 2, pipeData.price_per_mm * innerWidth, innerWidth);
 
             // Add horizontal pipes (depth)
-            const horizontalPipeX = createPipe(innerDepth, diameter, defaultMaterial);
-            horizontalPipeX.rotation.x = Math.PI / 2;
-            const h_pipe3 = horizontalPipeX.clone();
-            h_pipe3.position.set(-innerWidth / 2, shelfY, 0);
-            racking.add(h_pipe3);
-            const h_pipe4 = horizontalPipeX.clone();
-            h_pipe4.position.set(innerWidth / 2, shelfY, 0);
-            racking.add(h_pipe4);
-            bom.pipes[innerDepth] = (bom.pipes[innerDepth] || 0) + 2;
+            const horizontalPipeX1 = createPipe(innerDepth, diameter, defaultMaterial);
+            horizontalPipeX1.rotation.x = Math.PI / 2;
+            horizontalPipeX1.position.set(-innerWidth / 2, shelfY, 0);
+            racking.add(horizontalPipeX1);
+            
+            const horizontalPipeX2 = createPipe(innerDepth, diameter, defaultMaterial);
+            horizontalPipeX2.rotation.x = Math.PI / 2;
+            horizontalPipeX2.position.set(innerWidth / 2, shelfY, 0);
+            racking.add(horizontalPipeX2);
+            addBomItem(`Pipe (${diameter}mm)`, pipeData.sku, 2, pipeData.price_per_mm * innerDepth, innerDepth);
 
             // Add fittings for the shelf
             postPositions.forEach((pos, index) => {
-                const fitting = createFitting('116 A', diameter);
-                fitting.position.set(pos[0], shelfY, pos[1]);
-                fitting.rotation.y = fittingRotations[index]; // Rotate the fitting
-                racking.add(fitting);
+                const fitting = createFitting('116', diameter);
+                if (fitting) {
+                    fitting.position.set(pos[0], shelfY, pos[1]);
+                    fitting.rotation.y = fittingRotations[index];
+                    racking.add(fitting);
+                }
             });
-            bom.fittings['116 A'] = (bom.fittings['116 A'] || 0) + 4;
+            addBomItem(data.fittings["116"].name, fittingData.sku, 4, fittingData.price);
         }
+
+        // --- Add Fixed Top and Bottom Shelves ---
+        const fittingHeight = 40; // Estimate fitting height for positioning
+        const bottomShelfY = fittingHeight / 2;
+        const topShelfY = roundedHeight - (fittingHeight / 2);
+        
+        addShelf(bottomShelfY);
+        addShelf(topShelfY);
+
+        // --- Add Additional Intermediate Shelves ---
+        const availableHeight = topShelfY - bottomShelfY;
+        const numSpaces = count + 1;
+        for (let i = 1; i <= count; i++) {
+            const shelfY = bottomShelfY + i * (availableHeight / numSpaces);
+            addShelf(shelfY);
+        }
+
         return { model: racking, bom };
     }
 
@@ -202,31 +270,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =====================================================================================
 
     const bomContent = document.getElementById('bom-content');
+    const bomTotal = document.getElementById('bom-total');
+    const buyNowButton = document.getElementById('buy-now-button');
 
     function updateBOMUI(bom) {
         bomContent.innerHTML = ''; // Clear previous BOM
-
-        // Display pipes
-        for (const length in bom.pipes) {
-            if (Object.hasOwnProperty.call(bom.pipes, length)) {
-                const quantity = bom.pipes[length];
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'bom-item';
-                itemDiv.innerHTML = `<span class="item-name">Pipe (${configuration.pipe.diameter}mm)</span><span class="item-details">x${quantity} @ ${length}mm</span>`;
-                bomContent.appendChild(itemDiv);
+        
+        // --- Consolidate BOM items for display ---
+        const consolidatedItems = {};
+        bom.items.forEach(item => {
+            // Create a unique key for each item type (and length, if applicable)
+            const key = item.length ? `${item.sku}-${item.length}` : item.sku;
+            if (consolidatedItems[key]) {
+                consolidatedItems[key].quantity += item.quantity;
+            } else {
+                consolidatedItems[key] = { ...item };
             }
-        }
+        });
 
-        // Display fittings
-        for (const type in bom.fittings) {
-            if (Object.hasOwnProperty.call(bom.fittings, type)) {
-                const quantity = bom.fittings[type];
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'bom-item';
-                itemDiv.innerHTML = `<span class="item-name">Fitting (${type})</span><span class="item-details">x${quantity}</span>`;
-                bomContent.appendChild(itemDiv);
-            }
-        }
+        // --- Display consolidated items in the BOM ---
+        Object.values(consolidatedItems).forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'bom-item';
+            const details = item.length ? `x${item.quantity} @ ${item.length}mm` : `x${item.quantity}`;
+            const itemPrice = (item.price * item.quantity).toFixed(2);
+            itemDiv.innerHTML = `<span class="item-name">${item.name}</span><span class="item-details">${details}</span><span class="item-price">£${itemPrice}</span>`;
+            bomContent.appendChild(itemDiv);
+        });
+
+        // --- Update Total Price and Buy Now Button ---
+        bomTotal.innerHTML = `Total: <span class="price">£${bom.totalPrice.toFixed(2)}</span>`;
+        
+        // --- Snipcart: Define a single product representing the entire rack ---
+        // This makes the cart summary cleaner for the user.
+        buyNowButton.setAttribute('data-item-id', 'CUSTOM-RACK');
+        buyNowButton.setAttribute('data-item-name', 'Custom Pipe Rack');
+        buyNowButton.setAttribute('data-item-price', bom.totalPrice.toFixed(2));
+        buyNowButton.setAttribute('data-item-url', '/configurator.html');
+        buyNowButton.setAttribute('data-item-description', 'A custom-configured pipe racking solution.');
+        buyNowButton.setAttribute('data-item-quantity', 1);
     }
     
     let rackingSystem;
@@ -331,10 +413,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateActiveButton(configuration.pipe.diameter);
 
     // =====================================================================================
-    // ANIMATION LOOP
+    // ANIMATION LOOP & INITIAL BUILD
     // =====================================================================================
 
-    // Initial build
+    // Pre-load the default model first, then do the initial build
+    await loadFittingModel(configuration.pipe.diameter);
     regenerateRacking();
     boundingBoxHelper.visible = boundingBoxToggle.checked; // Set initial state
 
@@ -351,4 +434,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     animate();
-});
+}

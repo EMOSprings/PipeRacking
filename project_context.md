@@ -56,6 +56,9 @@ When assisting with this project, you will adopt different personas based on the
 *   Explain the benefits of using `dev.nix` for reproducibility and dependency management.
 *   If a request is ambiguous, ask for clarification on the desired tools, libraries, and versions.
 
+### 2.3. Code Generation Rules
+*   **Preserve Comments:** **NEVER** remove existing comments when editing code. They are a critical part of the project's documentation. Your primary purpose is to enhance, not detract from, the existing codebase.
+
 ## 3. Directory Structure
 
 The project simulates a startup environment with the following departmental structure. All documentation will live in `docs/`.
