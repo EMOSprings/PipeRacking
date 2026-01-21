@@ -1,0 +1,11 @@
+sku,product_type,product_name,description,price,price_unit,supplier,supplier_sku
+FIT-A-116,Fitting,90° Corner Joint,Size A for 26.9mm pipe,5.50,each,,
+FIT-B-116,Fitting,90° Corner Joint,Size B for 33.7mm pipe,6.50,each,,
+FIT-C-116,Fitting,90° Corner Joint,Size C for 42.4mm pipe,7.50,each,,
+FIT-D-116,Fitting,90° Corner Joint,Size D for 48.3mm pipe,8.50,each,,
+FIT-E-116,Fitting,90° Corner Joint,Size E for 60.3mm pipe,9.50,each,,
+PIP-A-G,Pipe,Galvanised Pipe,26.9mm diameter (Size A),0.015,per_mm,,
+PIP-B-G,Pipe,Galvanised Pipe,33.7mm diameter (Size B),0.020,per_mm,,
+PIP-C-G,Pipe,Galvanised Pipe,42.4mm diameter (Size C),0.025,per_mm,,
+PIP-D-G,Pipe,Galvanised Pipe,48.3mm diameter (Size D),0.030,per_mm,,
+PIP-E-G,Pipe,Galvanised Pipe,60.3mm diameter (Size E),0.040,per_mm,,

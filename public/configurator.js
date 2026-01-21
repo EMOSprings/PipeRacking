@@ -30,18 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // The main function that sets up everything once data is loaded
 async function initializeConfigurator(data) {
+    // Hardcode default dimensions as they are no longer in data.json
+    const firstPipeDiameter = Object.keys(data.pipes)[0];
     const configuration = {
         dimensions: {
-            height: data.defaults.height,
-            width: data.defaults.width,
-            depth: data.defaults.depth
+            height: 1800,
+            width: 1200,
+            depth: 400
         },
         pipe: {
-            diameter: data.pipe.diameter,
-            finish: data.pipe.finish
+            diameter: parseFloat(firstPipeDiameter),
+            finish: 'Galvanised' // Assuming a default finish
         },
         shelves: {
-            count: data.defaults.shelves
+            count: 2
         }
     };
 
@@ -50,22 +52,22 @@ async function initializeConfigurator(data) {
     // =====================================================================================
 
     const loader = new OBJLoader();
-    const fittingModels = {};
+    const fittingModels = {}; // Cache for loaded models, e.g., fittingModels['116-A']
 
-    async function loadFittingModel(diameter) {
-        if (fittingModels[diameter]) {
-            return fittingModels[diameter];
+    async function loadFittingModel(fittingId, sizeCode, diameter) {
+        const modelKey = `${fittingId}-${sizeCode}`;
+        if (fittingModels[modelKey]) {
+            return fittingModels[modelKey];
         }
 
         try {
-            const model = await loader.loadAsync(`assets/models/${diameter}mm/116 A.obj`);
+            // Correctly constructs the path e.g., assets/models/26.9mm/T116.obj
+            const model = await loader.loadAsync(`assets/models/${diameter}mm/T${fittingId}.obj`);
             
-            // Auto-center the model
             const box = new THREE.Box3().setFromObject(model);
             const center = box.getCenter(new THREE.Vector3());
             model.position.sub(center);
 
-            // Apply the new scaling factor of 9
             model.scale.set(9, 9, 9);
 
             const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x8A8A8A, roughness: 0.6, metalness: 1.0 });
@@ -75,10 +77,10 @@ async function initializeConfigurator(data) {
                 }
             });
 
-            fittingModels[diameter] = model;
+            fittingModels[modelKey] = model;
             return model;
         } catch (error) {
-            console.warn(`Could not load model for diameter ${diameter}mm. Using placeholder.`);
+            console.warn(`Could not load model for fitting ${modelKey}. Using placeholder.`, error);
             return null; // Indicates that loading failed
         }
     }
@@ -124,8 +126,8 @@ async function initializeConfigurator(data) {
         return pipe;
     }
 
-    function createFitting(type, diameter) {
-        const model = fittingModels[diameter];
+    async function createFitting(fittingId, sizeCode, diameter) {
+        const model = await loadFittingModel(fittingId, sizeCode, diameter);
         if (model) {
             return model.clone();
         }
@@ -135,21 +137,21 @@ async function initializeConfigurator(data) {
         return placeholder;
     }
 
-    // --- Data helper functions ---
+    // --- Data helper functions (UPDATED) ---
     function getPipeData(diameter) {
-        return data.pipe.diameters.find(d => d.diameter === diameter);
+        return data.pipes[diameter];
     }
 
-    function getFittingData(type, diameter) {
-        const fittingType = data.fittings[type];
+    function getFittingData(fittingId, diameter) {
+        const pipeData = getPipeData(diameter);
+        if (!pipeData) return null;
+        const sizeCode = pipeData.size_code;
+        const fittingType = data.fittings[fittingId];
         if (!fittingType) return null;
-        // Find the pipe code (A, B, C...) for the current diameter
-        const pipeCode = getPipeData(diameter).code;
-        // Return the fitting data for that specific size
-        return fittingType.sizes[pipeCode];
+        return fittingType.sizes[sizeCode];
     }
 
-    function createRacking(config) {
+    async function createRacking(config) {
         const racking = new THREE.Group();
         // --- BOM Structure ---
         const bom = {
@@ -191,6 +193,8 @@ async function initializeConfigurator(data) {
             // Return an empty structure to avoid crashing the app
             return { model: new THREE.Group(), bom: { items: [], totalPrice: 0 }};
         }
+        
+        const sizeCode = pipeData.size_code;
 
         // --- Helper to add items to the BOM and calculate price ---
         function addBomItem(name, sku, quantity, price, length = null) {
@@ -209,7 +213,7 @@ async function initializeConfigurator(data) {
         addBomItem(`Pipe (${diameter}mm)`, pipeData.sku, 4, pipeData.price_per_mm * roundedHeight, roundedHeight);
 
         // --- Helper function to create a single shelf and update the BOM ---
-        function addShelf(shelfY) {
+        async function addShelf(shelfY) {
             // Add horizontal pipes (width)
             const horizontalPipeZ1 = createPipe(innerWidth, diameter, defaultMaterial);
             horizontalPipeZ1.rotation.z = Math.PI / 2;
@@ -235,14 +239,15 @@ async function initializeConfigurator(data) {
             addBomItem(`Pipe (${diameter}mm)`, pipeData.sku, 2, pipeData.price_per_mm * innerDepth, innerDepth);
 
             // Add fittings for the shelf
-            postPositions.forEach((pos, index) => {
-                const fitting = createFitting('116', diameter);
+            for(let i=0; i<postPositions.length; i++) {
+                const pos = postPositions[i];
+                const fitting = await createFitting('116', sizeCode, diameter);
                 if (fitting) {
                     fitting.position.set(pos[0], shelfY, pos[1]);
-                    fitting.rotation.y = fittingRotations[index];
+                    fitting.rotation.y = fittingRotations[i];
                     racking.add(fitting);
                 }
-            });
+            }
             addBomItem(data.fittings["116"].name, fittingData.sku, 4, fittingData.price);
         }
 
@@ -251,15 +256,15 @@ async function initializeConfigurator(data) {
         const bottomShelfY = fittingHeight / 2;
         const topShelfY = roundedHeight - (fittingHeight / 2);
         
-        addShelf(bottomShelfY);
-        addShelf(topShelfY);
+        await addShelf(bottomShelfY);
+        await addShelf(topShelfY);
 
         // --- Add Additional Intermediate Shelves ---
         const availableHeight = topShelfY - bottomShelfY;
         const numSpaces = count + 1;
         for (let i = 1; i <= count; i++) {
             const shelfY = bottomShelfY + i * (availableHeight / numSpaces);
-            addShelf(shelfY);
+            await addShelf(shelfY);
         }
 
         return { model: racking, bom };
@@ -328,13 +333,13 @@ async function initializeConfigurator(data) {
 
     async function regenerateRacking() {
         // Show a loading indicator if you have one
-        await loadFittingModel(configuration.pipe.diameter);
+        document.getElementById('loading-overlay').style.display = 'flex';
         
         if (rackingSystem) {
             scene.remove(rackingSystem);
         }
 
-        const result = createRacking(configuration);
+        const result = await createRacking(configuration);
         rackingSystem = result.model;
         currentBOM = result.bom;
         
@@ -348,6 +353,7 @@ async function initializeConfigurator(data) {
         const center = boundingBox.getCenter(new THREE.Vector3());
         controls.target.copy(center);
         // Hide loading indicator
+        document.getElementById('loading-overlay').style.display = 'none';
     }
 
     heightInput.addEventListener('input', (e) => {
@@ -379,8 +385,18 @@ async function initializeConfigurator(data) {
     });
 
     // =====================================================================================
-    // INITIAL UI POPULATION
+    // INITIAL UI POPULATION (UPDATED)
     // =====================================================================================
+    
+    // Set initial slider values from configuration
+    heightInput.value = configuration.dimensions.height;
+    heightValue.textContent = configuration.dimensions.height;
+    widthInput.value = configuration.dimensions.width;
+    widthValue.textContent = configuration.dimensions.width;
+    depthInput.value = configuration.dimensions.depth;
+    depthValue.textContent = configuration.dimensions.depth;
+    shelvesInput.value = configuration.shelves.count;
+    shelvesValue.textContent = configuration.shelves.count;
 
     const diameterButtons = {};
 
@@ -394,20 +410,25 @@ async function initializeConfigurator(data) {
             }
         }
     }
+    
+    pipeDiameterButtons.innerHTML = ''; // Clear any static buttons
+    Object.keys(data.pipes).forEach(diameterStr => {
+        const diameter = parseFloat(diameterStr);
+        const pipeData = data.pipes[diameter];
+        const sizeCode = pipeData.size_code;
 
-    data.pipe.diameters.forEach(size => {
         const button = document.createElement('button');
-        button.textContent = `${size.code} (${size.diameter}mm)`;
-        button.dataset.diameter = size.diameter;
+        button.textContent = `${sizeCode} (${diameter}mm)`;
+        button.dataset.diameter = diameter;
 
         button.addEventListener('click', () => {
-            configuration.pipe.diameter = size.diameter;
-            updateActiveButton(size.diameter);
+            configuration.pipe.diameter = diameter;
+            updateActiveButton(diameter);
             regenerateRacking();
         });
 
         pipeDiameterButtons.appendChild(button);
-        diameterButtons[size.diameter] = button;
+        diameterButtons[diameter] = button;
     });
 
     updateActiveButton(configuration.pipe.diameter);
@@ -417,8 +438,7 @@ async function initializeConfigurator(data) {
     // =====================================================================================
 
     // Pre-load the default model first, then do the initial build
-    await loadFittingModel(configuration.pipe.diameter);
-    regenerateRacking();
+    await regenerateRacking(); // Changed to await regenerateRacking to handle async model loading
     boundingBoxHelper.visible = boundingBoxToggle.checked; // Set initial state
 
     window.addEventListener('resize', () => {

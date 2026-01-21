@@ -7,6 +7,7 @@
   # Caddy is the only system package we need for our web server skeleton.
   packages = [
     pkgs.caddy
+    pkgs.python3
   ];
 
   # 3. Web Preview

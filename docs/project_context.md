@@ -115,7 +115,27 @@ The project's 3D viewer is in its initial development phase. The core 3D structu
 
 ### 6.5. Development Log
 
-**Recent Activity**
+**Data Workflow & Store Refactoring**
+
+*   **Problem:** The online store (`store.html`) was not reflecting the latest product data after a data refactor and was effectively broken.
+*   **Root Cause:** Identified that the store was using an outdated and separate data source (`public/data/master_sku_list.csv`), while the rest of the application used a nested `public/data/data.json`. This created a data mismatch.
+*   **Solution Workflow:**
+    1.  Established that `master_sku_list.csv` should be the primary, human-editable source of truth for all product data.
+    2.  Created a conversion script (`tools/convert_csv_to_json.py`) to automatically generate the `data.json` file from the master CSV. This ensures a single source of truth while providing the application with the structured data it needs.
+    3.  Refactored the store page (`public/store.html`) to fetch its data from the unified `data.json` file, bringing it in line with the rest of the application.
+*   **Environment Configuration:**
+    *   The conversion script required Python, which was not initially in the development environment.
+    *   Updated the `.idx/dev.nix` configuration file to include `pkgs.python3`, which is the correct method for adding system packages in Project IDX.
+*   **Immediate Next Steps:**
+    1.  The user needs to **rebuild the IDX environment** for the Python installation to take effect.
+    2.  After the rebuild, run the command `python3 tools/convert_csv_to_json.py` to generate the `data.json` file.
+    3.  Begin work on expanding the product catalogue, focusing on sourcing and integrating 3D models for all parts and fittings.
+    4.  Commit all changes to the GitHub repository.
+
+---
+
+**Previous Activity**
+
 *   **Attempted Gizmo Integration:** An attempt was made to integrate the `three-viewport-gizmo` library to add a viewport orientation gizmo to the 3D scene.
 *   **Problem:** The integration resulted in a blank white screen, preventing the main racking model from rendering. Several attempts to fix the rendering loop and library integration were unsuccessful.
 *   **Resolution:** All changes related to the `three-viewport-gizmo` have been reverted from `index.html` and `main.js`. The application is back to a stable state where the racking model renders correctly.

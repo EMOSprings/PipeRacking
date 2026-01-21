@@ -6,6 +6,9 @@
     <title>Store - Pipe Racking</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="store.css">
+    <link rel="preconnect" href="https://app.snipcart.com">
+    <link rel="preconnect" href="https://cdn.snipcart.com">
+    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.2.1/default/snipcart.css" />
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -15,44 +18,99 @@
         <p>Browse our selection of pre-configured kits and individual components.</p>
 
         <div class="product-grid">
-            
-            <!-- Product Example 1 -->
-            <div class="product-card">
-                <img src="/assets/models/rendered/116.png" alt="90° Corner Joint Fitting">
-                <h3>90° Corner Joint (Size D)</h3>
-                <p>A versatile 90-degree corner joint for 48.3mm pipes.</p>
-                <div class="price">£8.50</div>
-                <button class="snipcart-add-item"
-                        data-item-id="FIT-116-D"
-                        data-item-name="90° Corner Joint (Size D)"
-                        data-item-price="8.50"
-                        data-item-url="/store.html"
-                        data-item-image="/assets/models/rendered/116.png">
-                    Add to Cart
-                </button>
-            </div>
-
-            <!-- Product Example 2 -->
-            <div class="product-card">
-                <img src="/assets/models/rendered/116.png" alt="90° Corner Joint Fitting">
-                <h3>90° Corner Joint (Size C)</h3>
-                <p>A versatile 90-degree corner joint for 42.4mm pipes.</p>
-                <div class="price">£7.50</div>
-                <button class="snipcart-add-item"
-                        data-item-id="FIT-116-C"
-                        data-item-name="90° Corner Joint (Size C)"
-                        data-item-price="7.50"
-                        data-item-url="/store.html"
-                        data-item-image="/assets/models/rendered/116.png">
-                    Add to Cart
-                </button>
-            </div>
-
+            <!-- Products will be dynamically loaded here -->
         </div>
     </main>
 
     <div id="footer-placeholder"></div>
 
     <script src="app.js"></script>
+    <script async src="https://cdn.snipcart.com/themes/v3.2.1/default/snipcart.js"></script>
+    <div hidden id="snipcart" data-api-key="YjkyOTAxOGMtMDFmNy00NTMyLWIwNGItM2EzZDI0ZjhjNmZhNjM5MDQ1NDI1OTk5NDcxNzQ2"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productGrid = document.querySelector('.product-grid');
+            if (!productGrid) {
+                console.error('Product grid not found');
+                return;
+            }
+
+            fetch('/data/data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    productGrid.innerHTML = ''; // Clear existing content
+
+                    // Generate Pipe Products
+                    for (const diameter in data.pipes) {
+                        const pipe = data.pipes[diameter];
+                        const standardLengths = [1000, 1500, 2000, 3000]; // in mm
+
+                        standardLengths.forEach(length => {
+                            const price = (length / 1000) * pipe.price_per_meter; // Calculate price based on length
+                            const lengthInMeters = length / 1000;
+                            const itemName = `${pipe.name} (${pipe.size_code}) - ${lengthInMeters}m`;
+                            // SKU needs to be unique for each length
+                            const itemSku = `${pipe.sku}-${length}`;
+
+                            const productCard = `
+                                <div class="product-card">
+                                    <img src="/assets/pipe_image_placeholder.png" alt="${pipe.name}">
+                                    <h3>${itemName}</h3>
+                                    <p>High-quality galvanised steel pipe, cut to ${lengthInMeters}m.</p>
+                                    <div class="price">£${price.toFixed(2)}</div>
+                                    <button class="snipcart-add-item"
+                                            data-item-id="${itemSku}"
+                                            data-item-name="${itemName}"
+                                            data-item-price="${price.toFixed(2)}"
+                                            data-item-url="/store.html"
+                                            data-item-image="/assets/pipe_image_placeholder.png">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            `;
+                            productGrid.innerHTML += productCard;
+                        });
+                    }
+
+                    // Generate Fitting Products
+                    for (const fittingId in data.fittings) {
+                        const family = data.fittings[fittingId];
+                        for (const sizeCode in family.sizes) {
+                            const variant = family.sizes[sizeCode];
+                            const imageName = `T${fittingId}.png`;
+
+                            const productCard = `
+                                <div class="product-card">
+                                    <img src="/assets/models/rendered/${imageName}" alt="${family.name}">
+                                    <h3>${family.name} (Size ${sizeCode})</h3>
+                                    <p>${family.description}</p>
+                                    <div class="price">£${variant.price.toFixed(2)}</div>
+                                    <button class="snipcart-add-item"
+                                            data-item-id="${variant.sku}"
+                                            data-item-name="${family.name} (Size ${sizeCode})"
+                                            data-item-price="${variant.price.toFixed(2)}"
+                                            data-item-url="/store.html"
+                                            data-item-image="/assets/models/rendered/${imageName}">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            `;
+                            productGrid.innerHTML += productCard;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching or processing product data:', error);
+                    productGrid.innerHTML = `<p class="error-message">There was an error loading our products. Please try again later. Error: ${error.message}</p>`;
+                });
+        });
+    </script>
+
 </body>
 </html>
